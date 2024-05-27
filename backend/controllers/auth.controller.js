@@ -1,11 +1,14 @@
-export const signupUser = (req, res) => {
-  res.send("signup route");
+export const signupUser_post = async (req, res) => {
+  try {
+  } catch (error) {}
 };
 
-export const loginUser = (req, res) => {
+/* user login */
+export const loginUser_post = (req, res) => {
   res.send("login route");
 };
 
-export const logoutUser = (req, res) => {
+/* user logout */
+export const logoutUser_post = (req, res) => {
   res.send("logout route");
 };
