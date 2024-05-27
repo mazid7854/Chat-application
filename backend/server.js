@@ -21,8 +21,8 @@ app.use(function (req, res, next) {
 });
 
 /* middlewares */
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json()); // parse json
+app.use(express.urlencoded({ extended: true })); // parse form data
 
 /* register routes */
 app.use("/api/auth", authRoutes);
