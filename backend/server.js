@@ -1,8 +1,10 @@
 import express from "express";
 const app = express();
+import cookieParser from "cookie-parser";
 
 /* import routes */
 import authRoutes from "./routs/auth.routes.js";
+import messageRoutes from "./routs/message.routes.js";
 
 /*  config dotenv */
 import dotenv from "dotenv";
@@ -23,9 +25,11 @@ app.use(function (req, res, next) {
 /* middlewares */
 app.use(express.json()); // parse json
 app.use(express.urlencoded({ extended: true })); // parse form data
+app.use(cookieParser()); // parse cookies
 
 /* register routes */
 app.use("/api/auth", authRoutes);
+app.use("/api/messages", messageRoutes);
 
 app.get("/", (req, res) => res.json({ msg: "hello world" }));
 app.listen(port, () => {
