@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 /* import routes */
 import authRoutes from "./routs/auth.routes.js";
 import messageRoutes from "./routs/message.routes.js";
+import userRoutes from "./routs/user.routes.js";
 
 /*  config dotenv */
 import dotenv from "dotenv";
@@ -30,6 +31,7 @@ app.use(cookieParser()); // parse cookies
 /* register routes */
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/users", userRoutes);
 
 app.get("/", (req, res) => res.json({ msg: "hello world" }));
 app.listen(port, () => {
