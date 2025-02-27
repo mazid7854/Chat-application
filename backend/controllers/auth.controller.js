@@ -4,31 +4,31 @@ import generateTokenAndSetCookie from "../jwt/generateToken.js";
 
 export const signupUser_post = async (req, res) => {
   try {
-    const { fullName, userName, password, confirmPassword, gender, email } =
-      req.body;
+    const { name, password, confirmPassword, gender, email } = req.body;
 
     if (password !== confirmPassword) {
       return res.status(400).json({ message: "Passwords not match" });
     }
 
-    /*  const user = await User.findOne({ userName });
-    console.log(user);
+    const user = await User.findOne({ email });
+
     if (user) {
-      return res.status(400).json({ message: "Username already exists" });
-    } */
+      return res
+        .status(400)
+        .json({ message: "User already exists with this email" });
+    }
 
     /* hash password */
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     /* profile picture */
-    const mailProfilePicture = `https://avatar.iran.liara.run/public/boy?username=${userName}`;
-    const femaleProfilePicture = `https://avatar.iran.liara.run/public/girl?username=${userName}`;
+    const mailProfilePicture = `https://avatar.iran.liara.run/public/boy?username=${name}`;
+    const femaleProfilePicture = `https://avatar.iran.liara.run/public/girl?username=${name}`;
 
     /* create new user */
     const newUser = new User({
-      fullName,
-      userName,
+      name,
       password: hashedPassword,
       gender,
       email,
@@ -44,8 +44,7 @@ export const signupUser_post = async (req, res) => {
       await newUser.save();
       res.status(201).json({
         _id: newUser._id,
-        fullName: newUser.fullName,
-        userName: newUser.userName,
+        name: newUser.name,
         email: newUser.email,
         gender: newUser.gender,
         profilePicture: newUser.profilePicture,
@@ -54,6 +53,8 @@ export const signupUser_post = async (req, res) => {
       res.status(400).json({ message: "Invalid user data received" });
     }
   } catch (error) {
+    console.log("error in signup controller", error.message);
+
     if (error.code === 11000) {
       return res.status(400).json({ message: "Username already exists" });
     }
@@ -66,8 +67,8 @@ export const signupUser_post = async (req, res) => {
 /* user login */
 export const loginUser_post = async (req, res) => {
   try {
-    const { userName, password } = req.body;
-    const user = await User.findOne({ userName });
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
     const isPasswordMatch = await bcrypt.compare(
       password,
       user?.password || ""
@@ -80,8 +81,7 @@ export const loginUser_post = async (req, res) => {
     generateTokenAndSetCookie(user._id, res);
     res.status(200).json({
       _id: user._id,
-      fullName: user.fullName,
-      userName: user.userName,
+      name: user.name,
       email: user.email,
       gender: user.gender,
       profilePicture: user.profilePicture,

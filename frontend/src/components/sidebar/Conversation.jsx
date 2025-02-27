@@ -14,7 +14,9 @@ const Conversation = () => {
         <div className="flex flex-col flex-1">
           <div className="flex gap-3 justify-between">
             <p className="font-bold text-gray-200">John Doe</p>
-            <span className="text-xl">🎃</span>
+            <span className="text-l text-gray-200 bg-green-500 rounded-full px-2">
+              1
+            </span>
           </div>
         </div>
       </div>
