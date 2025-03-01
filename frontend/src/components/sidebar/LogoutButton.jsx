@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { logout } from "../../redux/userSlice.js";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { setSelectedConversation } from "../../redux/selectedConversationSlice.js";
 
 const LogoutButton = () => {
   const dispatch = useDispatch();
@@ -12,6 +13,8 @@ const LogoutButton = () => {
       .then(() => {
         dispatch(logout());
         toast.success("Logged out successfully!");
+        // empty selected conversation state
+        dispatch(setSelectedConversation(null));
       })
       .catch((err) => {
         toast.error(err.response.data.message || "Logout failed");

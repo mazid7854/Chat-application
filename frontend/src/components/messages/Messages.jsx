@@ -1,23 +1,16 @@
 import { useEffect, useRef } from "react";
-import MessageSkeleton from "../skeletons/MessageSkeleton";
 import Message from "./Message";
 
-const Messages = () => {
+const Messages = ({ messages }) => {
   return (
     <div className="px-4 flex-1 overflow-auto">
-      <Message />
-      <Message />
-      <Message />
-      <Message />
-      <Message />
-      <Message />
-      <Message />
-      <Message />
-      <Message />
-      <Message />
-      <Message />
-      <Message />
+      {messages.length > 0 ? (
+        messages.map((msg) => <Message key={msg._id} message={msg} />)
+      ) : (
+        <p className="text-gray-400 text-center">No messages yet.</p>
+      )}
     </div>
   );
 };
+
 export default Messages;
