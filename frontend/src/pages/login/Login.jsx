@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import axios from "axios";
 import { login } from "../../redux/userSlice";
 import toast from "react-hot-toast";
+
 const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
@@ -12,6 +13,7 @@ const Login = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -20,18 +22,21 @@ const Login = () => {
     if (!formData.email || !formData.password) {
       return toast.error("Please fill in all fields!");
     }
+    setLoading(true);
     axios
       .post("api/auth/login", formData)
       .then((res) => {
         dispatch(login(res.data));
         setFormData({ email: "", password: "" });
         toast.success("Logged in successfully!");
+        setLoading(false);
         setTimeout(() => {
           navigate("/");
         }, 1000);
       })
       .catch((err) => {
         toast.error(err.response.data.message || "Login failed!");
+        setLoading(false);
       });
   };
   return (
@@ -80,8 +85,13 @@ const Login = () => {
             <button
               className="btn btn-block btn-sm mt-2"
               onClick={handleSubmit}
+              disabled={loading}
             >
-              Login
+              {loading ? (
+                <span className="loading loading-spinner "></span>
+              ) : (
+                "Login"
+              )}
             </button>
           </div>
         </form>

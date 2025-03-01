@@ -16,6 +16,7 @@ const SignUp = () => {
 
   const redirect = useNavigate();
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -59,6 +60,7 @@ const SignUp = () => {
       return toast.error("Passwords do not match!");
     }
 
+    setLoading(true);
     // Send data to backend
     axios
       .post("api/auth/signup", formData)
@@ -72,12 +74,14 @@ const SignUp = () => {
         });
 
         dispatch(login(res.data)); //  Dispatch login action
+        setLoading(false);
         setTimeout(() => {
           redirect("/"); //  Redirect to home page after 1 second
         }, 1000);
       })
       .catch((err) => {
         toast.error(err.response.data.message);
+        setLoading(false);
       });
   };
 
@@ -173,8 +177,13 @@ const SignUp = () => {
             <button
               type="submit"
               className="btn btn-block btn-sm mt-2 border border-slate-700"
+              disabled={loading}
             >
-              Sign Up
+              {loading ? (
+                <span className="loading loading-spinner "></span>
+              ) : (
+                "Sign Up"
+              )}
             </button>
           </div>
         </form>
