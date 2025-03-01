@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import MessageInput from "./MessageInput";
 import Messages from "./Messages";
 import { TiMessages } from "react-icons/ti";
-import { useSelector, useDispatch } from "react-redux";
-import { setSelectedConversation } from "../../redux/selectedConversationSlice.js";
+import { useSelector } from "react-redux";
 
 const NoChatSelected = () => {
   return (
@@ -18,14 +17,11 @@ const NoChatSelected = () => {
 };
 
 const MessageContainer = () => {
-  const user = useSelector((state) => state.user.user);
   const selectedConversation = useSelector(
     (state) => state.selectedConversation.selectedConversation
   );
-  const [online, setOnline] = useState(false);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
-  const dispatch = useDispatch();
 
   // Fetch messages when conversation changes
   useEffect(() => {
@@ -44,7 +40,7 @@ const MessageContainer = () => {
       }
     };
 
-    fetchMessages();
+    if (selectedConversation?._id) fetchMessages();
   }, [selectedConversation]);
 
   return (
@@ -65,13 +61,6 @@ const MessageContainer = () => {
               </div>
               <span className="text-gray-900 font-bold flex flex-col">
                 {selectedConversation?.name || "Select a chat"}
-                {online ? (
-                  <span className="text-green-500 text-xs ml-1">online</span>
-                ) : (
-                  <span className="text-sm font-semibold text-gray-300">
-                    last seen: 12:00
-                  </span>
-                )}
               </span>
             </div>
           </div>
@@ -84,14 +73,13 @@ const MessageContainer = () => {
 
       {selectedConversation ? (
         <>
-          {/* Show loader while fetching */}
           {loading ? (
             <p className="text-center text-gray-400">Loading messages...</p>
           ) : (
             <Messages messages={messages} />
           )}
-          {/* Input */}
-          <MessageInput />
+          {/* Pass setMessages to MessageInput */}
+          <MessageInput setMessages={setMessages} messages={messages} />
         </>
       ) : (
         <NoChatSelected />
@@ -99,4 +87,5 @@ const MessageContainer = () => {
     </div>
   );
 };
+
 export default MessageContainer;
