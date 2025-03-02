@@ -3,27 +3,52 @@ import MessageInput from "./MessageInput";
 import Messages from "./Messages";
 import { TiMessages } from "react-icons/ti";
 import { useSelector } from "react-redux";
-
-const NoChatSelected = () => {
-  return (
-    <div className="flex items-center justify-center w-full h-full">
-      <div className="px-4 text-center sm:text-lg md:text-xl text-gray-200 font-semibold flex flex-col items-center gap-2">
-        <p>Welcome 👋 ❄</p>
-        <p>Select a chat to start messaging</p>
-        <TiMessages className="text-3xl md:text-6xl text-center" />
-      </div>
-    </div>
-  );
-};
+import SocketManager from "../../socket.io/SocketManager.js"; // Import SocketManager
+import { socket } from "../../socket.io/socket.js";
 
 const MessageContainer = () => {
   const selectedConversation = useSelector(
     (state) => state.selectedConversation.selectedConversation
   );
+  //console.log("selectedConversation", selectedConversation);
+
+  //const socket = useSelector((state) => state.socket.socket); // Get socket from Redux
+  const user = useSelector((state) => state.user.user); // Logged-in user
+
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [onlineUsers, setOnlineUsers] = useState([]); // Store online users
+  console.log("previous messages", messages);
 
-  // Fetch messages when conversation changes
+  // Function to handle new messages from SocketManager
+  const handleNewMessage = (newMessage) => {
+    setMessages((prevMessages) => [...prevMessages, newMessage.message]);
+  };
+  useEffect(() => {
+    socket.on("receiveMessageFromServer", (receiveMessage) => {
+      handleNewMessage(receiveMessage);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!user || !socket) return;
+
+    // Notify server that user is online
+    socket.emit("userConnected", user._id);
+
+    // Function to update online users
+    const updateOnlineUsers = (users) => {
+      console.log("Updated Online Users:", users);
+      setOnlineUsers(users);
+    };
+
+    socket.on("onlineUsers", updateOnlineUsers);
+
+    return () => {
+      socket.off("onlineUsers", updateOnlineUsers);
+    };
+  }, [user, socket]);
+
   useEffect(() => {
     if (!selectedConversation) return;
 
@@ -40,34 +65,37 @@ const MessageContainer = () => {
       }
     };
 
-    if (selectedConversation?._id) fetchMessages();
-  }, [selectedConversation]);
+    fetchMessages();
+  }, [selectedConversation, setMessages]);
 
   return (
     <div className="md:min-w-[450px] flex flex-col">
-      {/* Header */}
-      <div className="bg-slate-500 px-4 py-2 mb-2">
+      {/* Inject SocketManager to manage socket connection */}
+      <SocketManager onNewMessage={handleNewMessage} />
+
+      <div className="bg-slate-500 px-4 py-2 mb-2 flex justify-between items-center">
         {selectedConversation ? (
-          <div className="flex justify-between items-center">
-            <div className="chat-image avatar flex items-center gap-2">
-              <div className="w-10 rounded-full">
-                <img
-                  alt="User Profile"
-                  src={
-                    selectedConversation?.profilePicture ||
-                    "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                  }
-                />
-              </div>
-              <span className="text-gray-900 font-bold flex flex-col">
-                {selectedConversation?.name || "Select a chat"}
-              </span>
+          <div className="chat-image avatar flex items-center gap-2">
+            <div className="w-10 rounded-full">
+              <img
+                alt="User Profile"
+                src={
+                  selectedConversation?.profilePicture ||
+                  "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                }
+              />
             </div>
+            <span className="text-gray-900 font-bold flex flex-col">
+              {selectedConversation?.name || "Select a chat"}
+              <span className="text-sm text-gray-700">
+                {onlineUsers.includes(selectedConversation?._id)
+                  ? "🟢 Online"
+                  : "⚪ Offline"}
+              </span>
+            </span>
           </div>
         ) : (
-          <div className="flex items-center justify-center">
-            <p className="text-gray-200 font-semibold">Messages</p>
-          </div>
+          <p className="text-gray-200 font-semibold">Messages</p>
         )}
       </div>
 
@@ -78,7 +106,6 @@ const MessageContainer = () => {
           ) : (
             <Messages messages={messages} />
           )}
-          {/* Pass setMessages to MessageInput */}
           <MessageInput setMessages={setMessages} messages={messages} />
         </>
       ) : (
@@ -89,3 +116,18 @@ const MessageContainer = () => {
 };
 
 export default MessageContainer;
+
+const NoChatSelected = () => {
+  const user = useSelector((state) => state.user.user);
+  return (
+    <div className="flex items-center justify-center w-full h-full">
+      <div className="px-4 text-center sm:text-lg md:text-xl text-gray-200 font-semibold flex flex-col items-center gap-2">
+        <p>
+          Welcome <span className="text-green-500 italic">{user.name}</span> 👋{" "}
+        </p>
+        <p>Select a chat to start messaging</p>
+        <TiMessages className="text-3xl md:text-6xl text-center" />
+      </div>
+    </div>
+  );
+};

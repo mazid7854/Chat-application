@@ -1,6 +1,8 @@
 import express from "express";
 const app = express();
 import cookieParser from "cookie-parser";
+import { createServer } from "http";
+import { initializeSocket } from "./socket.io/socket.js"; // Import socket setup
 
 /* import routes */
 import authRoutes from "./routs/auth.routes.js";
@@ -12,6 +14,12 @@ import dotenv from "dotenv";
 import connectMongoDB from "./db.connection/dbConnection.js";
 dotenv.config();
 const port = process.env.PORT || 5000;
+
+/* socket.io */
+const server = createServer(app); // Create HTTP server
+
+// Initialize socket.io
+const io = initializeSocket(server);
 
 /* cors */
 app.use(function (req, res, next) {
@@ -34,7 +42,7 @@ app.use("/api/messages", messageRoutes);
 app.use("/api/users", userRoutes);
 
 app.get("/", (req, res) => res.json({ msg: "hello world" }));
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(` Server running on http://127.0.0.1:${port}`);
   connectMongoDB();
 });

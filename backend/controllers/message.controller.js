@@ -1,5 +1,6 @@
 import Conversation from "../model/conversationModel.js";
 import Message from "../model/messageModel.js";
+import { getIoInstance, getOnlineUsers } from "../socket.io/socket.js";
 
 export const sendMessage_post = async (req, res) => {
   try {
@@ -23,15 +24,25 @@ export const sendMessage_post = async (req, res) => {
       message,
     });
 
-    console.log(newMessage._id);
     if (newMessage) {
       conversation.messages.push(newMessage._id);
     }
 
-    // await conversation.save();
-    // await newMessage.save();
-
     await Promise.all([conversation.save(), newMessage.save()]);
+
+    // ✅ Emit message to the receiver if they are online
+    const io = getIoInstance(); // Get io instance
+    const onlineUsers = getOnlineUsers();
+
+    const receiverSocketId = onlineUsers.get(receiverId);
+
+    console.log("receiverSocketId", receiverSocketId);
+
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("receiveMessageFromServer", {
+        message: newMessage,
+      });
+    }
 
     res.status(201).json(newMessage);
   } catch (error) {

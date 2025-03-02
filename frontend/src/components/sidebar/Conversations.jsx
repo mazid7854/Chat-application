@@ -4,22 +4,23 @@ import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { setConversations } from "../../redux/conversationsSlice.js";
 import { setSelectedConversation } from "../../redux/selectedConversationSlice.js";
+import { socket } from "../../socket.io/socket.js"; // Import socket instance
 
 const Conversations = ({ input }) => {
   const dispatch = useDispatch();
-  const { conversations } = useSelector((state) => state.conversations); // ✅ Get conversations from Redux
-
+  const { conversations } = useSelector((state) => state.conversations);
   const selectedConversation = useSelector(
     (state) => state.selectedConversation.selectedConversation
   );
 
   const [filteredConversations, setFilteredConversations] = useState([]);
+  const [onlineUsers, setOnlineUsers] = useState([]); // Store online users
 
   useEffect(() => {
     const fetchConversations = async () => {
       try {
         const res = await axios.get("/api/users");
-        dispatch(setConversations(res.data)); // ✅ Store in Redux
+        dispatch(setConversations(res.data));
       } catch (err) {
         toast.error(
           err.response?.data?.error || "Failed to fetch conversations"
@@ -31,7 +32,7 @@ const Conversations = ({ input }) => {
 
   useEffect(() => {
     if (!input.trim()) {
-      setFilteredConversations(conversations); // Show all when input is empty
+      setFilteredConversations(conversations);
     } else {
       const filtered = conversations.filter((conversation) =>
         conversation.name.toLowerCase().startsWith(input.toLowerCase())
@@ -40,11 +41,20 @@ const Conversations = ({ input }) => {
     }
   }, [input, conversations]);
 
-  const selectConversation = (c) => {
-    if (selectedConversation?._id === c._id) return; // ✅ Don't re-dispatch if already selected
-    dispatch(setSelectedConversation(c));
+  useEffect(() => {
+    // Listen for online users update
+    socket.on("onlineUsers", (users) => {
+      setOnlineUsers(users);
+    });
 
-    //console.log("Redux Selected Conversation:", selectedConversation); // ✅ Debugging log
+    return () => {
+      socket.off("onlineUsers");
+    };
+  }, []);
+
+  const selectConversation = (c) => {
+    if (selectedConversation?._id === c._id) return;
+    dispatch(setSelectedConversation(c));
   };
 
   return (
@@ -61,10 +71,14 @@ const Conversations = ({ input }) => {
                 selectedConversation?._id === conversation._id
                   ? "bg-sky-500"
                   : ""
-              }`} // ✅ Highlight selected conversation
+              }`}
               onClick={() => selectConversation(conversation)}
             >
-              <div className="avatar online">
+              <div
+                className={`avatar ${
+                  onlineUsers.includes(conversation._id) ? "online" : "offline"
+                }`}
+              >
                 <div className="w-12 rounded-full">
                   <img src={conversation.profilePicture} alt="user avatar" />
                 </div>

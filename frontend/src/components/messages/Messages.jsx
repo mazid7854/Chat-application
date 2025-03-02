@@ -1,8 +1,12 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Message from "./Message";
+import { useSelector } from "react-redux";
+import SocketManager from "../../socket.io/SocketManager";
+import socket from "../../socket.io/socket";
 
 const Messages = ({ messages }) => {
   const messagesEndRef = useRef(null);
+  const [newMessages, setNewMessages] = useState([]);
 
   useEffect(() => {
     if (messagesEndRef.current) {

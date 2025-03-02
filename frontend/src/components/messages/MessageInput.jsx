@@ -2,6 +2,7 @@ import { BsSend } from "react-icons/bs";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
+import { socket } from "../../socket.io/socket.js";
 
 const MessageInput = ({ setMessages, messages }) => {
   const [data, setData] = useState("");
@@ -10,6 +11,7 @@ const MessageInput = ({ setMessages, messages }) => {
   const selectedConversation = useSelector(
     (state) => state.selectedConversation.selectedConversation
   );
+  const user = useSelector((state) => state.user.user);
 
   const handleInputChange = (e) => {
     setData(e.target.value);
@@ -21,17 +23,22 @@ const MessageInput = ({ setMessages, messages }) => {
 
     setLoading(true);
     try {
-      const message = { message: data };
+      const message = { senderId: user._id, message: data };
 
       const response = await axios.post(
         `/api/messages/send/${selectedConversation._id}`,
         message
       );
 
-      // Update messages in MessageContainer
-      setMessages([...messages, response.data]);
+      const newMessage = response.data;
 
-      setData(""); // Clear input
+      // Emit the message to the server
+      socket.emit("sendMessage", newMessage);
+
+      // Update messages in UI instantly
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+
+      setData("");
     } catch (error) {
       console.log(error);
     } finally {
