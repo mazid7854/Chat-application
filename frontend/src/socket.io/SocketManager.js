@@ -29,6 +29,8 @@ const SocketManager = () => {
       dispatch(setOnlineUsers(users));
     });
 
+    // handle user disconnected
+
     return () => {
       console.log("🔄 Cleaning up socket...");
       socket.off("onlineUsers");

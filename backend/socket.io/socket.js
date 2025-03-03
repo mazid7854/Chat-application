@@ -1,4 +1,6 @@
 import { Server } from "socket.io";
+import User from "../model/userModel.js";
+import mongoose from "mongoose";
 
 const onlineUsers = new Map(); // Store online users (userId -> socketId)
 let ioInstance; // Store io instance
@@ -18,32 +20,45 @@ export const initializeSocket = (server) => {
     console.log("A user connected:", socket.id);
 
     socket.on("userConnected", (userId) => {
-      onlineUsers.set(userId, socket.id);
-      io.emit("onlineUsers", Array.from(onlineUsers.keys())); // Broadcast online users
+      if (userId) {
+        onlineUsers.set(userId, socket.id);
+        io.emit("onlineUsers", Array.from(onlineUsers.keys())); // Broadcast online users
+      }
     });
 
-    // socket.on("sendMessage", (data) => {
-    //   const { conversationId, message, receiverId } = data;
+    socket.on("disconnect", async () => {
+      let disconnectedUserId = null;
 
-    //   // Send message only to receiver if online
-    //   // const receiverSocketId = onlineUsers.get(receiverId);
-    //   // if (receiverSocketId) {
-    //   //   io.to(receiverSocketId).emit("receiveMessage", {
-    //   //     conversationId,
-    //   //     message,
-    //   //   });
-    //   // }
-    // });
-
-    socket.on("disconnect", () => {
-      for (let [userId, socketId] of onlineUsers.entries()) {
+      for (const [userId, socketId] of onlineUsers.entries()) {
         if (socketId === socket.id) {
+          disconnectedUserId = userId;
           onlineUsers.delete(userId);
           break;
         }
       }
-      io.emit("onlineUsers", Array.from(onlineUsers.keys()));
+
+      io.emit("onlineUsers", Array.from(onlineUsers.keys())); // Update online users list
       console.log("A user disconnected:", socket.id);
+
+      if (disconnectedUserId) {
+        try {
+          const updatedUser = await User.findByIdAndUpdate(
+            disconnectedUserId,
+            { lastSeen: new Date() },
+            { new: true, runValidators: true }
+          );
+
+          if (updatedUser) {
+            console.log(
+              `Updated last seen for user: ${disconnectedUserId} -> ${updatedUser.lastSeen}`
+            );
+          } else {
+            console.log(`User not found in database: ${disconnectedUserId}`);
+          }
+        } catch (error) {
+          console.error("Error updating last seen:", error);
+        }
+      }
     });
   });
 

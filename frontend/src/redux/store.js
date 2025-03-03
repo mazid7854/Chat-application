@@ -4,6 +4,7 @@ import conversationReducer from "./conversationsSlice.js";
 import selectedConversationReducer from "./selectedConversationSlice.js"; // ✅ Import
 import socketReducer from "./socketSlice.js";
 import messageReducer from "./messageSlice";
+import newMessageNotificationReducer from "./newMessageNotificationSlice.js";
 
 const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ const store = configureStore({
     selectedConversation: selectedConversationReducer,
     socket: socketReducer,
     messages: messageReducer,
+    newMessageNotification: newMessageNotificationReducer,
   },
 });
 

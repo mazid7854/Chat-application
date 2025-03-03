@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import MessageInput from "./MessageInput";
 import Messages from "./Messages";
 import { TiMessages } from "react-icons/ti";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import SocketManager from "../../socket.io/SocketManager.js"; // Import SocketManager
 import { socket } from "../../socket.io/socket.js";
-
+import { setNewMessageNotification } from "../../redux/newMessageNotificationSlice.js";
+import { useLastSeenOfUser } from "../../hooks/lastSeenOFUser.js";
 const MessageContainer = () => {
   const selectedConversation = useSelector(
     (state) => state.selectedConversation.selectedConversation
@@ -18,10 +19,12 @@ const MessageContainer = () => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState([]); // Store online users
-  console.log("previous messages", messages);
+  const [userDisconnected, setUserDisconnected] = useState(false);
 
-  // Function to handle new messages from SocketManager
+  const dispatch = useDispatch();
+
   const handleNewMessage = (newMessage) => {
+    dispatch(setNewMessageNotification(true));
     setMessages((prevMessages) => [...prevMessages, newMessage.message]);
   };
   useEffect(() => {
@@ -48,6 +51,10 @@ const MessageContainer = () => {
       socket.off("onlineUsers", updateOnlineUsers);
     };
   }, [user, socket]);
+
+  // track last seen of user
+
+  const lastSeen = useLastSeenOfUser(selectedConversation, onlineUsers);
 
   useEffect(() => {
     if (!selectedConversation) return;
@@ -90,7 +97,7 @@ const MessageContainer = () => {
               <span className="text-sm text-gray-700">
                 {onlineUsers.includes(selectedConversation?._id)
                   ? "🟢 Online"
-                  : "⚪ Offline"}
+                  : lastSeen}
               </span>
             </span>
           </div>

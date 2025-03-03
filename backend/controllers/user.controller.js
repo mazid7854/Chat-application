@@ -35,3 +35,15 @@ export const searchUserByKeyword_get = async (req, res) => {
     res.status(500).json({ error: "internal server error" });
   }
 };
+
+export const getLastSeenUser_get = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json({ lastSeen: user.lastSeen });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
