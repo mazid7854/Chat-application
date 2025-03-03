@@ -21,6 +21,8 @@ const MessageContainer = () => {
   const [onlineUsers, setOnlineUsers] = useState([]); // Store online users
   const [userDisconnected, setUserDisconnected] = useState(false);
 
+  const [typingUser, setTypingUser] = useState(null);
+
   const dispatch = useDispatch();
 
   const handleNewMessage = (newMessage) => {
@@ -55,6 +57,23 @@ const MessageContainer = () => {
   // track last seen of user
 
   const lastSeen = useLastSeenOfUser(selectedConversation, onlineUsers);
+
+  // handle typing event
+
+  useEffect(() => {
+    socket.on("userTyping", ({ senderId }) => {
+      setTypingUser(senderId);
+    });
+
+    socket.on("userStoppedTyping", ({ senderId }) => {
+      setTypingUser(null);
+    });
+
+    return () => {
+      socket.off("userTyping");
+      socket.off("userStoppedTyping");
+    };
+  }, [setTypingUser]);
 
   useEffect(() => {
     if (!selectedConversation) return;
@@ -96,7 +115,9 @@ const MessageContainer = () => {
               {selectedConversation?.name || "Select a chat"}
               <span className="text-sm text-gray-700">
                 {onlineUsers.includes(selectedConversation?._id)
-                  ? "🟢 Online"
+                  ? typingUser === selectedConversation._id
+                    ? "Typing..."
+                    : "🟢 Online"
                   : lastSeen}
               </span>
             </span>
@@ -113,7 +134,11 @@ const MessageContainer = () => {
           ) : (
             <Messages messages={messages} />
           )}
-          <MessageInput setMessages={setMessages} messages={messages} />
+          <MessageInput
+            setMessages={setMessages}
+            messages={messages}
+            setTypingUser={setTypingUser}
+          />
         </>
       ) : (
         <NoChatSelected />

@@ -26,6 +26,20 @@ export const initializeSocket = (server) => {
       }
     });
 
+    // Handle "typing" event
+    socket.on("userTyping", ({ senderId, recipientId }) => {
+      const recipientSocketId = onlineUsers.get(recipientId);
+
+      io.emit("userTyping", { senderId });
+    });
+
+    // Handle "stopTyping" event
+    socket.on("userStoppedTyping", ({ senderId, recipientId }) => {
+      const recipientSocketId = onlineUsers.get(recipientId);
+
+      io.emit("userStoppedTyping", { senderId });
+    });
+
     socket.on("disconnect", async () => {
       let disconnectedUserId = null;
 
@@ -47,14 +61,6 @@ export const initializeSocket = (server) => {
             { lastSeen: new Date() },
             { new: true, runValidators: true }
           );
-
-          if (updatedUser) {
-            console.log(
-              `Updated last seen for user: ${disconnectedUserId} -> ${updatedUser.lastSeen}`
-            );
-          } else {
-            console.log(`User not found in database: ${disconnectedUserId}`);
-          }
         } catch (error) {
           console.error("Error updating last seen:", error);
         }

@@ -6,29 +6,41 @@ import { socket } from "../../socket.io/socket.js";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 
-const MessageInput = ({ setMessages, messages }) => {
+const MessageInput = ({ setMessages, messages, setTypingUser }) => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const textareaRef = useRef(null);
   const [isMultiline, setIsMultiline] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const typingTimeout = useRef(null); // Track typing state
 
   const selectedConversation = useSelector(
     (state) => state.selectedConversation.selectedConversation
   );
   const user = useSelector((state) => state.user.user);
 
-  /*************  ✨ Codeium Command ⭐  *************/
-  /**
-   * Updates the input state with the current value of the textarea.
-   *
-   * @param {Object} e - The event object from the input change event.
-   */
+  const handleInputChange = (e) => {
+    setInput(e.target.value);
 
-  /******  c78b1e67-48c0-4c2b-9375-16c17a0fcd20  *******/ const handleInputChange =
-    (e) => {
-      setInput(e.target.value);
-    };
+    // Emit "userTyping" event
+    socket.emit("userTyping", {
+      senderId: user._id,
+      conversationId: selectedConversation._id,
+    });
+
+    // Clear the previous timeout before setting a new one
+    if (typingTimeout.current) {
+      clearTimeout(typingTimeout.current);
+    }
+
+    // Set a new timeout to emit "userStoppedTyping"
+    typingTimeout.current = setTimeout(() => {
+      socket.emit("userStoppedTyping", {
+        senderId: user._id,
+        conversationId: selectedConversation._id,
+      });
+    }, 2000);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -51,6 +63,12 @@ const MessageInput = ({ setMessages, messages }) => {
 
       setInput("");
       setShowEmojiPicker(false);
+
+      // Emit "stopTyping" when message is sent
+      socket.emit("stopTyping", {
+        senderId: user._id,
+        recipientId: selectedConversation._id,
+      });
     } catch (error) {
       console.log(error);
     } finally {

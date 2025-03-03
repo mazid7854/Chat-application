@@ -5,6 +5,7 @@ import selectedConversationReducer from "./selectedConversationSlice.js"; // ✅
 import socketReducer from "./socketSlice.js";
 import messageReducer from "./messageSlice";
 import newMessageNotificationReducer from "./newMessageNotificationSlice.js";
+import typingReducer from "./typingSlice";
 
 const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ const store = configureStore({
     socket: socketReducer,
     messages: messageReducer,
     newMessageNotification: newMessageNotificationReducer,
+    typing: typingReducer,
   },
 });
 
