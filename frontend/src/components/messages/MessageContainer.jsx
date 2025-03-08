@@ -32,7 +32,8 @@ const MessageContainer = () => {
   const [userDisconnected, setUserDisconnected] = useState(false);
 
   const [typingUser, setTypingUser] = useState(null);
-  const [profilePictureView, setProfilePictureView] = useState(false);
+  const [profilePictureViewInChatHeader, setProfilePictureViewInChatHeader] =
+    useState(false);
 
   const dispatch = useDispatch();
 
@@ -107,8 +108,10 @@ const MessageContainer = () => {
 
   return (
     <>
-      {profilePictureView ? (
-        <UserProfilePictureView setProfilePictureView={setProfilePictureView} />
+      {profilePictureViewInChatHeader ? (
+        <UserProfilePictureView
+          setProfilePictureViewInChatHeader={setProfilePictureViewInChatHeader}
+        />
       ) : (
         <div className="w-full h-full flex flex-col md:min-w-[450px]">
           {/* Inject SocketManager to manage socket connection */}
@@ -136,7 +139,7 @@ const MessageContainer = () => {
                     }
                     className="object-cover w-full h-full rounded-full"
                     onClick={() => {
-                      setProfilePictureView(true);
+                      setProfilePictureViewInChatHeader(true);
                     }}
                   />
                 </div>

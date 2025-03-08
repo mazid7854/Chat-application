@@ -3,6 +3,7 @@ const app = express();
 import cookieParser from "cookie-parser";
 import { createServer } from "http";
 import { initializeSocket } from "./socket.io/socket.js"; // Import socket setup
+import path from "path";
 
 /* import routes */
 import authRoutes from "./routs/auth.routes.js";
@@ -42,6 +43,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/files", fileRoutes);
+
+app.get("*", (req, res) => {
+  res.status(404).json({ message: "Not found" });
+});
 
 app.get("/", (req, res) => res.json({ msg: "hello world" }));
 server.listen(port, () => {
