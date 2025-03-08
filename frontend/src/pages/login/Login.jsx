@@ -40,16 +40,25 @@ const Login = () => {
       });
   };
   return (
-    <div className="flex flex-col items-center justify-center min-w-96 mx-auto">
-      <div className="w-full p-6 rounded-lg shadow-md bg-gray-400 bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-50">
-        <h1 className="text-3xl font-semibold text-center text-gray-300 flex justify-center mb-4">
-          Log <span className="text-green-500">In</span>
-        </h1>
+    <div className="flex items-center justify-center min-h-screen px-4">
+      <div className="  w-full max-w-md p-6 rounded-lg bg-slate-300">
+        {/* Logo & Heading */}
+        <div className="flex items-center justify-start ">
+          <img src="/obrolan.png" alt="obrolan logo" className=" " />
+        </div>
 
+        {/* Subtitle */}
+        <h2 className="font-semibold text-black mb-4">
+          Welcome to Obrolan! Please log in to your account.
+        </h2>
+
+        {/* Form */}
         <form>
           <div>
             <label className="label p-2">
-              <span className="text-base label-text">Email</span>
+              <span className="text-base font-semibold text-black label-text">
+                Email :
+              </span>
             </label>
             <input
               type="text"
@@ -63,7 +72,9 @@ const Login = () => {
 
           <div>
             <label className="label">
-              <span className="text-base label-text">Password</span>
+              <span className="text-base font-semibold text-black  label-text">
+                Password :
+              </span>
             </label>
             <input
               type="password"
@@ -74,13 +85,16 @@ const Login = () => {
               name="password"
             />
           </div>
+
+          {/* Sign Up Link */}
           <Link
             to="/signup"
-            className="text-sm  hover:underline hover:text-blue-400 mt-2 inline-block"
+            className="text-sm hover:underline text-red-700 mt-2 inline-block"
           >
             {"Don't"} have an account?
           </Link>
 
+          {/* Login Button */}
           <div>
             <button
               className="btn btn-block btn-sm mt-2"
@@ -88,7 +102,7 @@ const Login = () => {
               disabled={loading}
             >
               {loading ? (
-                <span className="loading loading-spinner "></span>
+                <span className="loading loading-spinner"></span>
               ) : (
                 "Login"
               )}

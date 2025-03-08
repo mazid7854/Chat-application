@@ -7,10 +7,20 @@ import SocketManager from "../../socket.io/SocketManager.js"; // Import SocketMa
 import { socket } from "../../socket.io/socket.js";
 import { setNewMessageNotification } from "../../redux/newMessageNotificationSlice.js";
 import { useLastSeenOfUser } from "../../hooks/lastSeenOFUser.js";
+import { Link } from "react-router-dom";
+import { setSelectedConversation } from "../../redux/selectedConversationSlice.js";
+import UserProfileSetting from "../user/UserProfileSetting.jsx";
+import { RiArrowGoBackFill } from "react-icons/ri";
+import UserProfilePictureView from "../../utils/UserProfilePictureView.jsx";
+import { setUserProfile } from "../../redux/userProfileSlice.js";
+
 const MessageContainer = () => {
+  const userProfile = useSelector((state) => state.userProfile.value);
+
   const selectedConversation = useSelector(
     (state) => state.selectedConversation.selectedConversation
   );
+
   //console.log("selectedConversation", selectedConversation);
 
   //const socket = useSelector((state) => state.socket.socket); // Get socket from Redux
@@ -22,6 +32,7 @@ const MessageContainer = () => {
   const [userDisconnected, setUserDisconnected] = useState(false);
 
   const [typingUser, setTypingUser] = useState(null);
+  const [profilePictureView, setProfilePictureView] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -95,55 +106,88 @@ const MessageContainer = () => {
   }, [selectedConversation, setMessages]);
 
   return (
-    <div className="md:min-w-[450px] flex flex-col">
-      {/* Inject SocketManager to manage socket connection */}
-      <SocketManager onNewMessage={handleNewMessage} />
-
-      <div className="bg-slate-500 px-4 py-2 mb-2 flex justify-between items-center">
-        {selectedConversation ? (
-          <div className="chat-image avatar flex items-center gap-2">
-            <div className="w-10 rounded-full">
-              <img
-                alt="User Profile"
-                src={
-                  selectedConversation?.profilePicture ||
-                  "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                }
-              />
-            </div>
-            <span className="text-gray-900 font-bold flex flex-col">
-              {selectedConversation?.name || "Select a chat"}
-              <span className="text-sm text-gray-700">
-                {onlineUsers.includes(selectedConversation?._id)
-                  ? typingUser === selectedConversation._id
-                    ? "Typing..."
-                    : "🟢 Online"
-                  : lastSeen}
-              </span>
-            </span>
-          </div>
-        ) : (
-          <p className="text-gray-200 font-semibold">Messages</p>
-        )}
-      </div>
-
-      {selectedConversation ? (
-        <>
-          {loading ? (
-            <p className="text-center text-gray-400">Loading messages...</p>
-          ) : (
-            <Messages messages={messages} />
-          )}
-          <MessageInput
-            setMessages={setMessages}
-            messages={messages}
-            setTypingUser={setTypingUser}
-          />
-        </>
+    <>
+      {profilePictureView ? (
+        <UserProfilePictureView setProfilePictureView={setProfilePictureView} />
       ) : (
-        <NoChatSelected />
+        <div className="w-full h-full flex flex-col md:min-w-[450px]">
+          {/* Inject SocketManager to manage socket connection */}
+          <SocketManager onNewMessage={handleNewMessage} />
+
+          {/* Chat Header */}
+          <div className="bg-slate-500 px-4 py-2 mb-2 flex justify-between items-center rounded-lg mx-2">
+            {selectedConversation ? (
+              <div className="chat-image avatar flex items-center gap-2">
+                <Link
+                  className="sm:hidden block p-2 rounded-full bg-gray-800 hover:bg-gray-700 text-white border border-gray-600 "
+                  to="/"
+                  onClick={() => {
+                    dispatch(setSelectedConversation(null));
+                  }}
+                >
+                  <RiArrowGoBackFill />
+                </Link>
+                <div className="w-10 h-10 rounded-full">
+                  <img
+                    alt="User Profile"
+                    src={
+                      selectedConversation?.profilePicture ||
+                      "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                    }
+                    className="object-cover w-full h-full rounded-full"
+                    onClick={() => {
+                      setProfilePictureView(true);
+                    }}
+                  />
+                </div>
+                <span className="text-gray-900 font-bold flex flex-col">
+                  {selectedConversation?.name || "Select a chat"}
+                  <span className="text-sm text-gray-700">
+                    {onlineUsers.includes(selectedConversation?._id)
+                      ? typingUser === selectedConversation._id
+                        ? "Typing..."
+                        : "🟢 Online"
+                      : lastSeen}
+                  </span>
+                </span>
+              </div>
+            ) : (
+              <p className="text-gray-200 font-semibold">
+                {userProfile ? "User Profile setting" : "Select a chat"}
+              </p>
+            )}
+          </div>
+
+          {/* Chat Body */}
+          <div className="flex-1 overflow-y-auto">
+            {userProfile ? (
+              <UserProfileSetting />
+            ) : selectedConversation ? (
+              <>
+                {loading ? (
+                  <p className="text-center text-gray-400">
+                    Loading messages...
+                  </p>
+                ) : (
+                  <Messages messages={messages} />
+                )}
+              </>
+            ) : (
+              <NoChatSelected />
+            )}
+          </div>
+
+          {/* Message Input */}
+          {selectedConversation && (
+            <MessageInput
+              setMessages={setMessages}
+              messages={messages}
+              setTypingUser={setTypingUser}
+            />
+          )}
+        </div>
       )}
-    </div>
+    </>
   );
 };
 

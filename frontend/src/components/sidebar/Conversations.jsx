@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setConversations } from "../../redux/conversationsSlice.js";
 import { setSelectedConversation } from "../../redux/selectedConversationSlice.js";
 import { socket } from "../../socket.io/socket.js"; // Import socket instance
+import { setUserProfile } from "../../redux/userProfileSlice.js";
 
 const Conversations = ({ input }) => {
   const dispatch = useDispatch();
@@ -72,7 +73,10 @@ const Conversations = ({ input }) => {
                   ? "bg-sky-500"
                   : ""
               }`}
-              onClick={() => selectConversation(conversation)}
+              onClick={() => {
+                selectConversation(conversation);
+                dispatch(setUserProfile(false));
+              }}
             >
               <div
                 className={`avatar ${
@@ -91,7 +95,7 @@ const Conversations = ({ input }) => {
               </div>
             </div>
 
-            <div className="divider my-0 py-0 h-1" />
+            <div className="divider  my-0 py-0 h-1" />
           </div>
         ))
       )}

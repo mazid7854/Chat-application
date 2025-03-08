@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    about: {
+      type: String,
+      default: "",
+    },
     lastSeen: { type: Date, default: Date.now }, // Store last seen timestamp
   },
   { timestamps: true }

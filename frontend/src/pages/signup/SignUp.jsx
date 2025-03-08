@@ -86,19 +86,28 @@ const SignUp = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-w-96 mx-auto">
-      <div className="w-full p-6 rounded-lg shadow-md bg-gray-400 bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-50">
-        <h1 className="text-3xl font-semibold text-center text-gray-300 flex justify-center mb-4">
-          Sign <span className="text-green-500">Up</span>
-        </h1>
+    <div className="flex items-center justify-center min-h-screen px-4">
+      <div className="w-full max-w-md p-6 rounded-lg bg-slate-300">
+        {/* Logo & Heading */}
+        <div className="flex items-center justify-start mb-4">
+          <img src="/obrolan.png" alt="obrolan logo" />
+        </div>
+
+        {/* Subtitle */}
+        <h2 className="font-semibold text-black mb-4">
+          Welcome to Obrolan! Please sign up for an account.
+        </h2>
+
         <form onSubmit={handleSubmit}>
           <div>
             <label className="label p-2">
-              <span className="text-base label-text">Full Name</span>
+              <span className="text-base font-semibold text-black label-text">
+                Full Name :
+              </span>
             </label>
             <input
               type="text"
-              placeholder="John Doe"
+              placeholder="Enter Full Name"
               className="w-full input input-bordered h-10"
               value={formData.name}
               onChange={handleChange}
@@ -108,11 +117,13 @@ const SignUp = () => {
 
           <div>
             <label className="label p-2">
-              <span className="text-base label-text">Email</span>
+              <span className="text-base font-semibold text-black label-text">
+                Email :
+              </span>
             </label>
             <input
               type="text"
-              placeholder="johndoe@example.com"
+              placeholder="Enter email"
               className="w-full input input-bordered h-10"
               value={formData.email}
               onChange={handleChange}
@@ -122,7 +133,9 @@ const SignUp = () => {
 
           <div>
             <label className="label">
-              <span className="text-base label-text">Password</span>
+              <span className="text-base font-semibold text-black label-text">
+                Password :
+              </span>
             </label>
             <input
               type="password"
@@ -136,7 +149,9 @@ const SignUp = () => {
 
           <div>
             <label className="label">
-              <span className="text-base label-text">Confirm Password</span>
+              <span className="text-base font-semibold text-black label-text">
+                Confirm Password :
+              </span>
             </label>
             <input
               type="password"
@@ -148,9 +163,12 @@ const SignUp = () => {
             />
           </div>
 
+          {/* Gender Field */}
           <div>
             <label className="label">
-              <span className="text-base label-text">Gender</span>
+              <span className="text-base font-semibold text-black label-text">
+                Gender :
+              </span>
             </label>
             <select
               className="select select-bordered w-full"
@@ -163,24 +181,27 @@ const SignUp = () => {
               </option>
               <option value="male">Male</option>
               <option value="female">Female</option>
+              <option value="other">Other</option>
             </select>
           </div>
 
+          {/* Already Have an Account */}
           <Link
-            className="text-sm hover:underline hover:text-blue-400 mt-2 inline-block"
             to="/login"
+            className="text-sm hover:underline text-blue-500 mt-2 inline-block"
           >
             Already have an account?
           </Link>
 
+          {/* Sign Up Button */}
           <div>
             <button
               type="submit"
-              className="btn btn-block btn-sm mt-2 border border-slate-700"
+              className="btn btn-block btn-sm mt-2"
               disabled={loading}
             >
               {loading ? (
-                <span className="loading loading-spinner "></span>
+                <span className="loading loading-spinner"></span>
               ) : (
                 "Sign Up"
               )}

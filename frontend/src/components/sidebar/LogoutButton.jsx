@@ -23,7 +23,7 @@ const LogoutButton = () => {
   return (
     <div className="mt-auto">
       <BiLogOut
-        className="w-6 h-6 text-white cursor-pointer"
+        className="w-6 h-6 text-green-500 cursor-pointer"
         onClick={handleLogout}
       />
     </div>

@@ -6,6 +6,7 @@ import socketReducer from "./socketSlice.js";
 import messageReducer from "./messageSlice";
 import newMessageNotificationReducer from "./newMessageNotificationSlice.js";
 import typingReducer from "./typingSlice";
+import userProfileReducer from "./userProfileSlice";
 
 const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ const store = configureStore({
     messages: messageReducer,
     newMessageNotification: newMessageNotificationReducer,
     typing: typingReducer,
+    userProfile: userProfileReducer,
   },
 });
 
