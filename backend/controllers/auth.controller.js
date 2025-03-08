@@ -84,6 +84,7 @@ export const loginUser_post = async (req, res) => {
       name: user.name,
       email: user.email,
       gender: user.gender,
+      about: user.about,
       profilePicture: user.profilePicture,
     });
   } catch (error) {

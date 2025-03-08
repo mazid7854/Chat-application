@@ -16,6 +16,7 @@ const UserProfileSetting = () => {
   const [name, setName] = useState(user?.name || "");
   const [password, setPassword] = useState("");
   const [about, setAbout] = useState(user?.about || "");
+  console.log(user);
 
   const [uploading, setUploading] = useState(false);
   const [profilePictureView, setProfilePictureView] = useState(false);
